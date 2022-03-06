@@ -15,6 +15,7 @@ import gen_data
 import db
 import os
 import pickle
+import yolo_search
 
 
 def load_icon():
@@ -55,6 +56,7 @@ class Interface():
         m.add_command(label='插入',command=self.trivial_feature_0)
         m.add_command(label='删除',command=self.trivial_feature_1)
         m.add_command(label='排序',command=self.trivial_feature_2)
+        m.add_command(label='图像查询',command=self.advance_search)
         
         win['menu']=m
         
@@ -312,6 +314,47 @@ class Interface():
         with open('{}.pkl'.format(self.db_name),'wb') as f:
             pickle.dump(self.db,f)
         tkinter.messagebox.showinfo('操作成功','已同步至磁盘')
+        
+    def advance_search(self):
+        def click():
+            if not os.path.exists(en1.get()):
+                print(en1.get())
+                tkinter.messagebox.showerror('错误','该路径不存在')
+                return
+            
+            img,self.db=yolo_search.yolo_search(en1.get(),self.db)
+            win.destroy()
+            
+            self.show_search_result(img)
+            self.refresh()
+            
+        win=tkinter.Toplevel()
+        win.title('图像查询')
+        win.geometry("400x150") 
+        win.iconphoto(False,nrand.choice(self.icon)) 
+        
+        label1=tkinter.Label(win,text='请输入图片地址')
+        label1.pack()
+        en1=tkinter.Entry(win,width=30)
+        en1.pack()
+        bu1=tkinter.Button(win,text='确认',command=click)
+        bu1.pack()
+        
+    def show_search_result(self,pic):
+        b,g,r=cv2.split(pic)
+        pic=cv2.merge([r,g,b]) 
+        ret=cv2.resize(pic,(self.config[0],self.config[1]))
+        ret=Image.fromarray(ret)    
+        ret.show()
+
+
+        
+        
+        
+
+        
+        
+        
             
             
             
